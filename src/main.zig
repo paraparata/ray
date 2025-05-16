@@ -1,4 +1,5 @@
 const std = @import("std");
+const color = @import("color.zig");
 
 const page_alloc = std.heap.page_allocator;
 
@@ -24,7 +25,7 @@ pub fn main() !void {
 
     // String concatenation
     // Refer to test_slice.zig in https://ziglang.org/documentation/master/#Slices
-    var start_index: usize = 1;
+    var start_index: usize = 0;
     _ = &start_index;
     var path_arr: [100]u8 = undefined;
     const path_slice = path_arr[start_index..];
@@ -49,12 +50,10 @@ pub fn main() !void {
             const fr: f16 = @as(f16, @floatFromInt(x)) / @as(f16, @floatFromInt(width - 1));
             const fg: f16 = @as(f16, @floatFromInt(y)) / @as(f16, @floatFromInt(height - 1));
             const fb = 0.0;
+            const pixel_color: color.Color = .{ .x = fr, .y = fg, .z = fb };
 
-            const r: u8 = @intFromFloat(255.99 * fr);
-            const g: u8 = @intFromFloat(255.99 * fg);
-            const b: u8 = @intFromFloat(255.99 * fb);
-
-            try stdout.print("{} {} {}\n", .{ r, g, b });
+            try color.print(stdout.any(), pixel_color);
+            try stdout.print("\n", .{});
         }
     }
 
