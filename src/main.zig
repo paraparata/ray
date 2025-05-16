@@ -46,11 +46,13 @@ pub fn main() !void {
 
     for (0..height) |y| {
         for (0..width) |x| {
-            const x8: u8 = @intCast(x);
-            const y8: u8 = @intCast(y);
-            const r: u8 = 255 - x8;
-            const g: u8 = 255 - y8;
-            const b: u8 = if (line(x8, y8)) 255 else 0;
+            const fr: f16 = @as(f16, @floatFromInt(x)) / @as(f16, @floatFromInt(width - 1));
+            const fg: f16 = @as(f16, @floatFromInt(y)) / @as(f16, @floatFromInt(height - 1));
+            const fb = 0.0;
+
+            const r: u8 = @intFromFloat(255.99 * fr);
+            const g: u8 = @intFromFloat(255.99 * fg);
+            const b: u8 = @intFromFloat(255.99 * fb);
 
             try stdout.print("{} {} {}\n", .{ r, g, b });
         }
@@ -58,8 +60,4 @@ pub fn main() !void {
 
     try bw.flush();
     std.debug.print("Done.\n", .{});
-}
-
-fn line(x: u8, y: u8) bool {
-    return x == y;
 }
