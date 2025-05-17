@@ -50,7 +50,7 @@ pub fn main() !void {
             const fr: f16 = @as(f16, @floatFromInt(x)) / @as(f16, @floatFromInt(width - 1));
             const fg: f16 = @as(f16, @floatFromInt(y)) / @as(f16, @floatFromInt(height - 1));
             const fb = 0.0;
-            const pixel_color: color.Color = .{ .x = fr, .y = fg, .z = fb };
+            const pixel_color: color.Color = .init(fr, fg, fb);
 
             try color.print(stdout.any(), pixel_color);
             try stdout.print("\n", .{});
