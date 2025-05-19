@@ -1,12 +1,12 @@
 const std = @import("std");
-const vec = @import("vec.zig");
+const Vector3 = @import("vec.zig").Vector3;
 
-pub const Color = vec.Vector;
+pub const Color = Vector3;
 
 pub fn print(stdout: std.io.AnyWriter, pixel_color: Color) !void {
-    const rr = pixel_color.e[0];
-    const gg = pixel_color.e[1];
-    const bb = pixel_color.e[2];
+    const rr = pixel_color[0];
+    const gg = pixel_color[1];
+    const bb = pixel_color[2];
 
     const r: u8 = @intFromFloat(255.99 * rr);
     const g: u8 = @intFromFloat(255.99 * gg);

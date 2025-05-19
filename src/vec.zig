@@ -1,116 +1,74 @@
 const std = @import("std");
 const testing = std.testing;
 
-pub const Point = Vector;
+pub const Vector3 = @Vector(3, f64);
+pub const Point = Vector3;
 
-pub const Vector = struct {
-    e: @Vector(3, f64),
-
-    pub fn x(self: Vector) f64 {
-        return self.e[0];
-    }
-    pub fn y(self: Vector) f64 {
-        return self.e[1];
-    }
-    pub fn z(self: Vector) f64 {
-        return self.e[2];
-    }
-
-    pub const default: Vector = .{ .e = @Vector(3, f64){ 0, 0, 0 } };
-
-    pub fn init(_x: f64, _y: f64, _z: f64) Vector {
-        return Vector{ .e = .{ _x, _y, _z } };
-    }
-
-    pub fn initFromBuiltin(vector: @Vector(3, f64)) Vector {
-        return .init(vector[0], vector[1], vector[2]);
-    }
-
-    pub fn add(self: Vector, b: Vector) Vector {
-        return Vector{ .e = .{
-            self.e[0] + b.e[0],
-            self.e[1] + b.e[1],
-            self.e[2] + b.e[2],
-        } };
-    }
-
-    pub fn substract(self: Vector, b: Vector) Vector {
-        return Vector{ .e = .{
-            self.e[0] - b.e[0],
-            self.e[1] - b.e[1],
-            self.e[2] - b.e[2],
-        } };
-    }
-
-    pub fn multiplyVec(self: Vector, b: Vector) Vector {
-        return Vector{ .e = self.e * b.e };
-    }
-
-    pub fn multiply(self: Vector, t: f64) Vector {
-        return Vector{ .e = .{
-            self.e[0] * t,
-            self.e[1] * t,
-            self.e[2] * t,
-        } };
-    }
-
-    pub fn div(self: Vector, t: f64) Vector {
-        const divider: f64 = 1;
-        return self.multiply(divider / t);
-    }
-
-    pub fn len(self: Vector) f64 {
-        return @sqrt(self.e[0] * self.e[0] +
-            self.e[1] * self.e[1] +
-            self.e[2] * self.e[2]);
-    }
-
-    pub fn unit(self: Vector) Vector {
-        const e_unit: @Vector(3, f64) = .{
-            self.e[0] / self.len(),
-            self.e[1] / self.len(),
-            self.e[2] / self.len(),
-        };
-        return Vector{ .e = e_unit };
-    }
-};
-
-pub fn dot(a: Vector, b: Vector) f64 {
-    return a.e[0] * b.e[0] + a.e[1] * b.e[1] + a.e[2] * b.e[2];
-}
-
-pub fn cross(a: Vector, b: Vector) Vector {
-    return .{
-        .x = a.e[1] * b.e[2] - a.e[2] * b.e[1],
-        .y = a.e[2] * b.e[0] - a.e[0] * b.e[2],
-        .z = a.e[0] * b.e[1] - a.e[1] * b.e[0],
+pub fn multiply(v: Vector3, t: f64) Vector3 {
+    return Vector3{
+        v[0] * t,
+        v[1] * t,
+        v[2] * t,
     };
 }
 
-test "init from builtin vector" {
-    const a: Vector = .initFromBuiltin(@Vector(3, f64){ 1, 2, 3 });
-    try testing.expectEqual(2, a.e[1]);
+pub fn div(v: Vector3, t: f64) Vector3 {
+    const divider: f64 = 1;
+    return multiply(v, divider / t);
+}
+
+pub fn len(v: Vector3) f64 {
+    return @sqrt(v[0] * v[0] +
+        v[1] * v[1] +
+        v[2] * v[2]);
+}
+
+pub fn unit(v: Vector3) Vector3 {
+    return .{
+        v[0] / len(v),
+        v[1] / len(v),
+        v[2] / len(v),
+    };
+}
+
+pub fn dot(a: Vector3, b: Vector3) f64 {
+    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+
+pub fn cross(a: Vector3, b: Vector3) Vector3 {
+    return .{
+        .x = a[1] * b[2] - a[2] * b[1],
+        .y = a[2] * b[0] - a[0] * b[2],
+        .z = a[0] * b[1] - a[1] * b[0],
+    };
 }
 
 // to test if @TypeOf returns a type or a string of type
 test "generic add" {
-    const a: Vector = .default;
+    const a: Vector3 = .{ 0, 0, 0 };
     const thetype = @TypeOf(a);
-    std.log.warn("{}", .{@TypeOf(a)});
-    try testing.expectEqual(thetype, Vector);
+    try testing.expectEqual(thetype, Vector3);
+}
+
+test "Vector3  div test" {
+    var a: Vector3 = .{ 4, 6, 8 };
+    a = div(a, 2);
+    try std.testing.expectEqual(a[0], 2);
+    try std.testing.expectEqual(a[1], 3);
+    try std.testing.expectEqual(a[2], 4);
 }
 
 test "vector 3d" {
-    const v3: Vector = .default;
-    try comptime testing.expect(v3.e[0] == 0);
+    const v3: Vector3 = .{ 0, 0, 0 };
+    try comptime testing.expect(v3[0] == 0);
 }
 
 test "vector unit" {
-    const a: Vector = .{ .e = .{ 6, 8, 0 } };
+    const a: Vector3 = .{ 6, 8, 0 };
     const float6: f64 = 6;
     const float8: f64 = 8;
     const float10: f64 = 10;
-    const comparison = a.unit().e == @Vector(3, f64){ float6 / float10, float8 / float10, 0 };
+    const comparison = unit(a) == @Vector(3, f64){ float6 / float10, float8 / float10, 0 };
     const is_all_true = @reduce(.And, comparison);
     try testing.expect(is_all_true == true);
 }
