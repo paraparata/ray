@@ -6,10 +6,24 @@ pub const Point = Vector;
 pub const Vector = struct {
     e: @Vector(3, f64),
 
+    pub fn x(self: Vector) f64 {
+        return self.e[0];
+    }
+    pub fn y(self: Vector) f64 {
+        return self.e[1];
+    }
+    pub fn z(self: Vector) f64 {
+        return self.e[2];
+    }
+
     pub const default: Vector = .{ .e = @Vector(3, f64){ 0, 0, 0 } };
 
-    pub fn init(x: f64, y: f64, z: f64) Vector {
-        return Vector{ .e = .{ x, y, z } };
+    pub fn init(_x: f64, _y: f64, _z: f64) Vector {
+        return Vector{ .e = .{ _x, _y, _z } };
+    }
+
+    pub fn initFromBuiltin(vector: @Vector(3, f64)) Vector {
+        return .init(vector[0], vector[1], vector[2]);
     }
 
     pub fn add(self: Vector, b: Vector) Vector {
@@ -51,13 +65,13 @@ pub const Vector = struct {
             self.e[2] * self.e[2]);
     }
 
-    pub fn unit(self: Vector) @Vector(3, f64) {
+    pub fn unit(self: Vector) Vector {
         const e_unit: @Vector(3, f64) = .{
             self.e[0] / self.len(),
             self.e[1] / self.len(),
             self.e[2] / self.len(),
         };
-        return e_unit;
+        return Vector{ .e = e_unit };
     }
 };
 
@@ -73,6 +87,19 @@ pub fn cross(a: Vector, b: Vector) Vector {
     };
 }
 
+test "init from builtin vector" {
+    const a: Vector = .initFromBuiltin(@Vector(3, f64){ 1, 2, 3 });
+    try testing.expectEqual(2, a.e[1]);
+}
+
+// to test if @TypeOf returns a type or a string of type
+test "generic add" {
+    const a: Vector = .default;
+    const thetype = @TypeOf(a);
+    std.log.warn("{}", .{@TypeOf(a)});
+    try testing.expectEqual(thetype, Vector);
+}
+
 test "vector 3d" {
     const v3: Vector = .default;
     try comptime testing.expect(v3.e[0] == 0);
@@ -83,7 +110,7 @@ test "vector unit" {
     const float6: f64 = 6;
     const float8: f64 = 8;
     const float10: f64 = 10;
-    const comparison = a.unit() == @Vector(3, f64){ float6 / float10, float8 / float10, 0 };
+    const comparison = a.unit().e == @Vector(3, f64){ float6 / float10, float8 / float10, 0 };
     const is_all_true = @reduce(.And, comparison);
     try testing.expect(is_all_true == true);
 }
