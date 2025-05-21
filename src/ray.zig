@@ -10,10 +10,10 @@ pub const Ray = struct {
         return Ray{ .origin = origin, .direction = direction };
     }
 
+    /// Vector of ray at some point along the way
+    /// P(t) = origin + t*destination
     pub fn at(self: Ray, t: f64) vec.Point {
-        const dest_multiplied = vec.multiply(self.direction, t);
-        const res = self.origin * dest_multiplied;
-        _ = &dest_multiplied;
+        const res = self.origin + vec.multiply(self.direction, t);
         return res;
     }
 };

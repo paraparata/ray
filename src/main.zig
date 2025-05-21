@@ -53,10 +53,34 @@ pub fn main() !void {
     std.debug.print("Done.\n", .{});
 }
 
+// when ray hits sphere surface, return true to color the pixel
+// along the way
+fn hitSphere(center: Point, radius: f64, r: Ray) bool {
+    const oc = center - r.origin;
+    const a = vec.dot(r.direction, r.direction);
+    const b: f64 = -2.0 * vec.dot(r.direction, oc);
+    const c: f64 = vec.dot(oc, oc) - radius * radius;
+
+    // using simplified determinant equation
+    // has the same result as complete determinant equation
+    // - generated/sphere.ppm: using simplified equation
+    // - generated/sphere-real.ppm: using complete equation
+    // const discriminant: f64 = (b * b) - (4 * a * c);
+    const discriminant: f64 = (-b + @sqrt((b * b) - (4 * a * c))) * 0.5 * (1 / a);
+
+    return (discriminant >= 0);
+}
+
 fn rayColor(r: Ray) Color {
+    // if ray hits spehere surface, colorize point as red
+    if (hitSphere(Point{ 0, 0, -1 }, 0.5, r)) {
+        return Color{ 1, 0, 0 };
+    }
+
+    // otherwise returns gradient
     const unit_direction = vec.unit(r.direction);
     const a: f64 = 0.5 * (unit_direction[1] + 1.0);
-    return vec.multiply(Color{ 1, 1, 1 }, @as(f64, 1) - a) +
+    return vec.multiply(Color{ 1, 1, 1 }, 1.0 - a) +
         vec.multiply(Color{ 0.89, 0.58, 0.21 }, a);
 }
 
